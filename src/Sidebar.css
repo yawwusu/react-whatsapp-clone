@@ -1,0 +1,17 @@
+.Sidebar {
+    flex: 0.35;
+}
+
+.Sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem;
+    border-right: 1px solid lightgray;
+}
+
+.Sidebar-header-right {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 10vw;
+}
