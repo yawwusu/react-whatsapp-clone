@@ -2,10 +2,22 @@ import { Avatar, IconButton } from '@material-ui/core'
 import { AttachFile, InsertEmoticon, MicOutlined, MoreVert } from '@material-ui/icons'
 import SearchOutlined from '@material-ui/icons/SearchOutlined'
 import React from 'react'
+import { useParams } from 'react-router'
 import './Chat.css'
+import db from './firebase'
 
 function Chat() {
     const [message, setMessage] = React.useState("");
+    const { roomId } = useParams();
+    const [roomName, setRoomName] = React.useState("") 
+
+    React.useEffect(() => {
+        if (roomId) {
+            db.collection('rooms').doc(roomId).onSnapshot(snapshot => (
+                setRoomName(snapshot.data().name)
+            ))
+        }
+    }, [roomId])
 
     const sendMessage = function(event) {
         event.preventDefault();
@@ -23,7 +35,7 @@ function Chat() {
                 <Avatar />
 
                 <div className="Chat-header-info">
-                    <h3>Room name</h3>
+                    <h3>{roomName}</h3>
                     <p>Last seen at ...</p>
                 </div>
 
