@@ -1,13 +1,17 @@
+import React from 'react'
+import { useParams } from 'react-router'
 import { Avatar, IconButton } from '@material-ui/core'
 import { AttachFile, InsertEmoticon, MicOutlined, MoreVert } from '@material-ui/icons'
 import SearchOutlined from '@material-ui/icons/SearchOutlined'
-import React from 'react'
-import { useParams } from 'react-router'
 import './Chat.css'
 import db from './firebase'
+import firebase from 'firebase'
+import { useStateValue } from './StateProvider'
 
 function Chat() {
-    const [message, setMessage] = React.useState("");
+    const [{user}, dispatch] = useStateValue();
+    const [input, setInput] = React.useState("");
+    const [messages, setMessages] = React.useState([])
     const { roomId } = useParams();
     const [roomName, setRoomName] = React.useState("") 
 
@@ -16,17 +20,26 @@ function Chat() {
             db.collection('rooms').doc(roomId).onSnapshot(snapshot => (
                 setRoomName(snapshot.data().name)
             ))
+
+            db.collection('rooms').doc(roomId)
+            .collection('messages')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot(snapshot => (setMessages(snapshot.docs.map(doc => doc.data()))))
         }
     }, [roomId])
 
     const sendMessage = function(event) {
         event.preventDefault();
-        // do db stuff here
-        setMessage("")
+        db.collection('rooms').doc(roomId).collection('messages').add({
+            name: user.displayName,
+            message: input,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        })
+        setInput("")
     }
 
-    const changeMessage = function(event) {
-        setMessage(event.target.value);
+    const changeInput = function(event) {
+        setInput(event.target.value);
     }
 
     return (
@@ -36,7 +49,7 @@ function Chat() {
 
                 <div className="Chat-header-info">
                     <h3>{roomName}</h3>
-                    <p>Last seen at ...</p>
+                    <p>last seen {new Date(messages[messages.length-1]?.timestamp?.toDate()).toUTCString()}</p>
                 </div>
 
                 <div className="Chat-header-right">
@@ -53,17 +66,19 @@ function Chat() {
             </div>
 
             <div className="Chat-body">
-                <p className={`Chat-message ${true && "Chat-message-receiver"}`}> 
-                    <span className="Chat-message-name">Yaw</span>
-                    Hey guys 
-                    <span className="Chat-message-timestamp">3.52pm</span>
-                </p>
+                {messages.map(message => (
+                    <p className={`Chat-message ${message.name === user.displayName && "Chat-message-receiver"}`}> 
+                        <span className="Chat-message-name">{message.name}</span>
+                        {message.message}
+                        <span className="Chat-message-timestamp">{new Date(message.timestamp?.toDate()).toUTCString()}</span>
+                    </p>
+                ))}
             </div>
 
             <div className="Chat-footer">
                 <InsertEmoticon />
                 <form>
-                    <input value={message} onChange={changeMessage} placeholder="Type a message" type="text" />
+                    <input value={input} onChange={changeInput} placeholder="Type a message" type="text" />
                     <button onClick={sendMessage}>Send a message</button>
                 </form>
                 <MicOutlined /> 

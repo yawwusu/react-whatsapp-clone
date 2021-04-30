@@ -6,6 +6,12 @@
     border-bottom: 1px solid #f6f6f6;
 }
 
+
+.Sidebar-chats > a {
+    text-decoration: none !important;
+    color: black;
+}
+
 .Sidebar-chat:hover {
     background-color: #ebebeb;
 }
