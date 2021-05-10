@@ -1,3 +1,7 @@
+# This is a WhatsApp Clone built with React + Firebase
+## It features: Google Signin, Room Creation, Real Time Chat and A Cool WhatsApp look and feel. 
+## Enjoy
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
